@@ -321,24 +321,24 @@ function accederAlZipYLeerJson()
 
                         // Obtener la fecha en formato 'YYYY-MM-DD' desde arrayDeCadenas
                         let fechaDelArchivoJson = arrayDeCadenas[4];
-                        console.log("Fecha original:", fechaDelArchivoJson);
-                        // Separar año, mes y día manualmente
-                        const [year, month, day] = fechaDelArchivoJson.split('-').map(Number); // Convertir a números
-                        // Crear la fecha como cadena ISO para evitar problemas de zona horaria
-                        const fechaCorregida = new Date(Date.UTC(year, month - 1, day));
-                        // Opciones de formato en español
-                        const opciones = {
-                            year: 'numeric',
-                            month: 'long'
-                        };
-                        // Convertir la fecha a formato legible
-                        let fechaFormateada = fechaCorregida.toLocaleDateString('es-ES', opciones);
-                        // Agregar el día manualmente al texto
-                        fechaFormateada = `${day} de ${fechaFormateada}`;
-                        console.log("Fecha formateada:", fechaFormateada); // Ejemplo: "2 de octubre de 2023"
+                        // console.log("Fecha original:", fechaDelArchivoJson);
+                        // // Separar año, mes y día manualmente
+                        // const [year, month, day] = fechaDelArchivoJson.split('-').map(Number); // Convertir a números
+                        // // Crear la fecha como cadena ISO para evitar problemas de zona horaria
+                        // const fechaCorregida = new Date(Date.UTC(year, month - 1, day));
+                        // // Opciones de formato en español
+                        // const opciones = {
+                        //     year: 'numeric',
+                        //     month: 'long'
+                        // };
+                        // // Convertir la fecha a formato legible
+                        // let fechaFormateada = fechaCorregida.toLocaleDateString('es-ES', opciones);
+                        // // Agregar el día manualmente al texto
+                        // fechaFormateada = `${day} de ${fechaFormateada}`;
+                        // console.log("Fecha formateada:", fechaFormateada); // Ejemplo: "2 de octubre de 2023"
 
                         //Se imprimen en la pagina web los resultados
-                        fechaDelArchivo.textContent = `La fecha del archivo es: ${fechaFormateada}`;
+                        fechaDelArchivo.textContent = `La fecha del archivo es: ${fechaDelArchivoJson}`;
                         sumaVolumenCompras.textContent = `La suma de volumen compras es: ${volumenCompras}`;
                         sumaVolumenVentas.textContent = `La suma de volumen ventas es: ${volumenVentas}`;
                         sumaImporteVentas.textContent = `La suma de importe ventas es: ${importeVentas}`;
