@@ -16,10 +16,10 @@
     <div id="dropArea">Arrastra y suelta tu archivo ZIP aquí</div>
 
     <!-- <label><input type="file" id="adjuntarArchivo"></label> -->
-    <label><input type="file" id="adjuntarArchivo"></label>
+    <label><input type="file" id="adjuntarArchivo" multiple></label>
     <!-- <label for="photos">Seleccionar imágenes</label> -->
 
-    <h2 id="erroresTitulo" class="oculto error">Errores en el nombre del archivo:</h2>
+    <h2 id="erroresTitulo" class="oculto error">Errores:</h2>
     <ul id="listadoErorresNombreArchivo" class="oculto error"></ul>
 
     <h2 id="fechaDelArchivo" class="oculto">Fecha del archivo:</h2>
@@ -51,4 +51,10 @@
     <!-- Boton con método para refrescar página -->
     <button id="botonLimpiar" onclick="actualizarPagina()" class="oculto">Reiniciar</button>
 </body>
+
+<!-- Indicador de carga -->
+<div id="cargando" class="text-center mt-4 oculto">
+    <div class="spinner-border text-primary" role="status"></div>
+    <p class="mt-2">Procesando archivos...</p>
+</div>
 </html>
