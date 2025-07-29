@@ -198,26 +198,45 @@ async function leerArchivoZIP(archivo) {
     const data = JSON.parse(jsonData);
 
     // Calcular suma de volumen de compras
-    let compras = data.Producto.reduce((sum, producto) =>
-        sum + producto.Tanque.reduce((s, t) =>
-            s + (t.Recepciones?.SumaVolumenRecepcion?.ValorNumerico || 0), 0), 0);
+    let compras = Array.isArray(data.Producto)
+        ? data.Producto.reduce((sum, producto) =>
+            sum + (Array.isArray(producto.Tanque)
+                ? producto.Tanque.reduce((s, t) =>
+                    s + (t.Recepciones?.SumaVolumenRecepcion?.ValorNumerico || 0), 0)
+                : 0), 0)
+        : 0;
     totalVolumenCompras += parseFloat(compras.toFixed(3));
 
     // Calcular suma de volumen de ventas
-    let ventas = data.Producto.reduce((sum, producto) =>
-        sum + producto.Dispensario.reduce((s1, d) =>
-            s1 + d.Manguera.reduce((s2, m) =>
-                s2 + (m.Entregas?.[0]?.SumaVolumenEntregado?.ValorNumerico || 0), 0), 0), 0);
+    let ventas = Array.isArray(data.Producto)
+        ? data.Producto.reduce((sum, producto) =>
+            sum + (Array.isArray(producto.Dispensario)
+                ? producto.Dispensario.reduce((s1, d) =>
+                    s1 + (Array.isArray(d.Manguera)
+                        ? d.Manguera.reduce((s2, m) =>
+                            s2 + (m.Entregas?.[0]?.SumaVolumenEntregado?.ValorNumerico || 0), 0)
+                        : 0), 0)
+                : 0), 0)
+        : 0;
     totalVolumenVentas += parseFloat(ventas.toFixed(3));
 
     // Calcular suma del importe de ventas
-    let importe = data.Producto.reduce((s, producto) =>
-        s + producto.Dispensario.reduce((s1, d) =>
-            s1 + d.Manguera.reduce((s2, m) =>
-                s2 + (m.Entregas?.reduce((s3, e) =>
-                    s3 + (parseFloat(e.SumaVentas) || 0), 0) || 0), 0), 0), 0);
+    let importe = Array.isArray(data.Producto)
+        ? data.Producto.reduce((s, producto) =>
+            s + (Array.isArray(producto.Dispensario)
+                ? producto.Dispensario.reduce((s1, d) =>
+                    s1 + (Array.isArray(d.Manguera)
+                        ? d.Manguera.reduce((s2, m) =>
+                            s2 + (Array.isArray(m.Entregas)
+                                ? m.Entregas.reduce((s3, e) =>
+                                    s3 + (parseFloat(e.SumaVentas) || 0), 0)
+                                : 0), 0)
+                        : 0), 0)
+                : 0), 0)
+        : 0;
     totalImporteVentas += parseFloat(importe.toFixed(3));
 }
+
 
 // Reinicia la página
 function actualizarPagina() {
