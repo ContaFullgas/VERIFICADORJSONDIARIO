@@ -188,16 +188,14 @@ async function leerArchivoZIP(archivo) {
         reader.readAsArrayBuffer(archivo);
     });
 
-    // Cargar el archivo ZIP con JSZip
     const zip = await JSZip.loadAsync(result);
     const jsonFileName = Object.keys(zip.files).find(name => name.endsWith('.json'));
     if (!jsonFileName) throw new Error("No se encontró archivo JSON dentro del ZIP");
 
-    // Leer el archivo JSON y convertirlo a objeto
     const jsonData = await zip.file(jsonFileName).async("text");
     const data = JSON.parse(jsonData);
 
-    // Calcular suma de volumen de compras
+    // Suma volumen compras (igual que antes)
     let compras = Array.isArray(data.Producto)
         ? data.Producto.reduce((sum, producto) =>
             sum + (Array.isArray(producto.Tanque)
@@ -207,35 +205,58 @@ async function leerArchivoZIP(archivo) {
         : 0;
     totalVolumenCompras += parseFloat(compras.toFixed(3));
 
-    // Calcular suma de volumen de ventas
-    let ventas = Array.isArray(data.Producto)
-        ? data.Producto.reduce((sum, producto) =>
-            sum + (Array.isArray(producto.Dispensario)
-                ? producto.Dispensario.reduce((s1, d) =>
-                    s1 + (Array.isArray(d.Manguera)
-                        ? d.Manguera.reduce((s2, m) =>
-                            s2 + (m.Entregas?.[0]?.SumaVolumenEntregado?.ValorNumerico || 0), 0)
-                        : 0), 0)
-                : 0), 0)
-        : 0;
+    // Suma volumen ventas con soporte para ambos formatos de Entregas
+    let ventas = 0;
+    if (Array.isArray(data.Producto)) {
+        for (const producto of data.Producto) {
+            if (Array.isArray(producto.Dispensario)) {
+                for (const d of producto.Dispensario) {
+                    if (Array.isArray(d.Manguera)) {
+                        for (const m of d.Manguera) {
+                            if (Array.isArray(m.Entregas)) {
+                                // Caso 1: Entregas es array
+                                for (const entrega of m.Entregas) {
+                                    ventas += entrega.SumaVolumenEntregado?.ValorNumerico || 0;
+                                }
+                            } else if (m.Entregas && Array.isArray(m.Entregas.Entrega)) {
+                                // Caso 2: Entregas es objeto con propiedad Entrega (array)
+                                ventas += m.Entregas.SumaVolumenEntregado?.ValorNumerico || 0;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
     totalVolumenVentas += parseFloat(ventas.toFixed(3));
 
-    // Calcular suma del importe de ventas
-    let importe = Array.isArray(data.Producto)
-        ? data.Producto.reduce((s, producto) =>
-            s + (Array.isArray(producto.Dispensario)
-                ? producto.Dispensario.reduce((s1, d) =>
-                    s1 + (Array.isArray(d.Manguera)
-                        ? d.Manguera.reduce((s2, m) =>
-                            s2 + (Array.isArray(m.Entregas)
-                                ? m.Entregas.reduce((s3, e) =>
-                                    s3 + (parseFloat(e.SumaVentas) || 0), 0)
-                                : 0), 0)
-                        : 0), 0)
-                : 0), 0)
-        : 0;
+    // Suma importe ventas con soporte para ambos formatos de Entregas
+    let importe = 0;
+    if (Array.isArray(data.Producto)) {
+        for (const producto of data.Producto) {
+            if (Array.isArray(producto.Dispensario)) {
+                for (const d of producto.Dispensario) {
+                    if (Array.isArray(d.Manguera)) {
+                        for (const m of d.Manguera) {
+                            if (Array.isArray(m.Entregas)) {
+                                // Caso raro: Entregas es array (verifica si SumaVentas está en cada entrega)
+                                for (const entrega of m.Entregas) {
+                                    importe += parseFloat(entrega.SumaVentas) || 0;
+                                }
+                            } else if (m.Entregas && Array.isArray(m.Entregas.Entrega)) {
+                                // Caso típico que muestras: SumaVentas está en m.Entregas, no en cada entrega
+                                importe += parseFloat(m.Entregas.SumaVentas) || 0;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
     totalImporteVentas += parseFloat(importe.toFixed(3));
+
 }
+
 
 
 // Reinicia la página
